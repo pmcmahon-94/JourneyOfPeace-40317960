@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group>
+        <item
+            android:id="@+id/Home"
+            android:title="Home"
+            android:icon="@drawable/ic_action_home"
+            />
+        <item
+            android:id="@+id/about_us"
+            android:title="About Us"
+            android:icon="@drawable/ic_action_info"
+            />
+    </group>
+
+    <item android:title="Settings">
+        <menu>
+            <item
+                android:id="@+id/app_settings"
+                android:title="Settings"
+                android:icon="@drawable/ic_action_settings"
+                />
+
+            <item
+                android:id="@+id/contact_us"
+                android:title="Contact Us"
+                android:icon="@drawable/ic_action_contact"
+                />
+        </menu>
+
+    </item>
+
+</menu>
