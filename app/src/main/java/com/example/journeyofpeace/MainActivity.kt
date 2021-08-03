@@ -13,6 +13,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.budiyev.android.codescanner.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
 
 private const val CAMERA_REQUEST_CODE = 101
@@ -25,10 +27,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var codeScanner: CodeScanner
     private lateinit var scannerView: CodeScannerView
     private lateinit var textView: TextView
+    lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //set up location
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         //create toolbar
         toolbar = findViewById(R.id.toolbar)
@@ -47,7 +53,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         textView = findViewById(R.id.text_view)
 
         setUpPermissions()
+        checkLocationPermission()
         codeScanner()
+    }
+
+    private fun checkLocationPermission() {
+        TODO("Not yet implemented")
     }
 
     private fun codeScanner() {
