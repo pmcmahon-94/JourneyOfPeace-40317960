@@ -1,6 +1,7 @@
 package com.example.journeyofpeace
 
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -15,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.budiyev.android.codescanner.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 
 private const val CAMERA_REQUEST_CODE = 101
@@ -53,12 +55,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         textView = findViewById(R.id.text_view)
 
         setUpPermissions()
-        checkLocationPermission()
+        fetchLocation()
         codeScanner()
     }
 
-    private fun checkLocationPermission() {
-        TODO("Not yet implemented")
+    private fun fetchLocation() {
+
+        val task: Task<Location> = fusedLocationProviderClient.lastLocation
+
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ActivityCompat
+                .checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ){
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 101)
+            return
+        }
+        task.addOnSuccessListener {
+            if (it != null){
+                Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun codeScanner() {
