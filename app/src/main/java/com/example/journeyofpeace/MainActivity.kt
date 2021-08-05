@@ -3,21 +3,19 @@ package com.example.journeyofpeace
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
-import android.widget.Toolbar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.budiyev.android.codescanner.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
+import com.example.journeyofpeace.ar.PlacesArFragment
 
 private const val CAMERA_REQUEST_CODE = 101
 
@@ -26,10 +24,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var toolbar: androidx.appcompat.widget.Toolbar
     lateinit var drawerLayout: DrawerLayout
     lateinit var navigationView: NavigationView
-    private lateinit var codeScanner: CodeScanner
-    private lateinit var scannerView: CodeScannerView
-    private lateinit var textView: TextView
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var arFragment: PlacesArFragment
+    private lateinit var mapFragment: SupportMapFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +48,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Toggle.syncState()
         navigationView.setNavigationItemSelectedListener(this)
 
-        scannerView = findViewById(R.id.scanner_view)
-        textView = findViewById(R.id.text_view)
-
         setUpPermissions()
         fetchLocation()
-        codeScanner()
     }
 
     private fun fetchLocation() {
@@ -75,46 +68,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    private fun codeScanner() {
-
-        codeScanner = CodeScanner(this, scannerView)
-        codeScanner.apply {
-            camera = CodeScanner.CAMERA_BACK
-            formats = CodeScanner.ALL_FORMATS
-
-            autoFocusMode = AutoFocusMode.SAFE
-            scanMode = ScanMode.CONTINUOUS
-            isAutoFocusEnabled = true
-            isFlashEnabled = false
-
-            decodeCallback = DecodeCallback {
-                runOnUiThread {
-                    textView.text = it.text
-                }
-            }
-
-            errorCallback = ErrorCallback {
-                runOnUiThread {
-                    Log.e("main", "Camera initialization error: ${it.message}")
-                }
-            }
-        }
-
-        scannerView.setOnClickListener {
-            codeScanner.startPreview()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        codeScanner.startPreview()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        codeScanner.releaseResources()
     }
 
     private fun setUpPermissions() {
@@ -157,5 +110,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         return true
+    }
+
+    private fun setUpMaps() {
+        mapFragment.getMapAsync { googleMap ->
+            googleMap.isMyLocationEnabled = true
+            // ...
+        }
     }
 }
