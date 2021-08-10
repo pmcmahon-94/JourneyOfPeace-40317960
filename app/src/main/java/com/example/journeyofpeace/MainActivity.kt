@@ -1,5 +1,6 @@
 package com.example.journeyofpeace
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -32,6 +33,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        mapFragment =
+            supportFragmentManager.findFragmentById(R.id.maps_fragment) as SupportMapFragment
+
         //set up location
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -42,7 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.nav_view)
         val Toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar,0,0
+            this, drawerLayout, toolbar, 0, 0
         )
         drawerLayout.addDrawerListener(Toggle)
         Toggle.syncState()
@@ -50,28 +54,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setUpPermissions()
         fetchLocation()
+        setUpMaps()
     }
 
     private fun fetchLocation() {
 
         val task: Task<Location> = fusedLocationProviderClient.lastLocation
 
-        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED && ActivityCompat
-                .checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ){
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 101)
+                .checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                101
+            )
             return
         }
         task.addOnSuccessListener {
-            if (it != null){
-                Toast.makeText(applicationContext, "${it.latitude} ${it.longitude}", Toast.LENGTH_SHORT).show()
+            if (it != null) {
+                Toast.makeText(
+                    applicationContext,
+                    "${it.latitude} ${it.longitude}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
 
     private fun setUpPermissions() {
-        val permission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+        val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makeRequest()
@@ -79,7 +95,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun makeRequest() {
-        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), CAMERA_REQUEST_CODE)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.CAMERA),
+            CAMERA_REQUEST_CODE
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -88,10 +108,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode) {
+        when (requestCode) {
             CAMERA_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "You need the camera permission to use this app", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "You need the camera permission to use this app",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -99,7 +123,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         //add some event to the menu
-        when(item.itemId){
+        when (item.itemId) {
             R.id.Home -> {
                 Toast.makeText(baseContext, "home", Toast.LENGTH_SHORT).show()
             }
@@ -107,15 +131,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Toast.makeText(baseContext, "about us", Toast.LENGTH_SHORT).show()
             }
         }
-
-
         return true
     }
 
     private fun setUpMaps() {
         mapFragment.getMapAsync { googleMap ->
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    101
+                )
+            }
             googleMap.isMyLocationEnabled = true
-            // ...
         }
     }
 }
