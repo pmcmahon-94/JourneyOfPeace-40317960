@@ -14,7 +14,6 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.journeyofpeace.ar.PlaceNode
@@ -39,7 +38,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-private const val CAMERA_REQUEST_CODE = 101
+//private const val CAMERA_REQUEST_CODE = 101
+private const val LOCATION_REQUEST_CODE = 100
 
 class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.OnNavigationItemSelectedListener,
     OnMapReadyCallback {
@@ -68,6 +68,20 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
     private val accelerometerReading = FloatArray(3)
     private val magnetometerReading = FloatArray(3)
     private val rotationMatrix = FloatArray(9)
+
+    private val bSands = LatLng(54.5902, -5.9678)
+    private val connCentre = LatLng(54.5979, -5.9528)
+    private val clonMonastery = LatLng(54.6000, -5.9571)
+    private val millCemetary = LatLng(54.5828, -5.9738)
+    private val muralWall = LatLng(54.6010, -5.9564)
+    private val radioFailte = LatLng(54.5998, -5.9402)
+
+    private lateinit var markerSands: Marker
+    private lateinit var markerCentre: Marker
+    private lateinit var markerMonastery: Marker
+    private lateinit var markerCemetary: Marker
+    private lateinit var markerWall: Marker
+    private lateinit var markerRadio: Marker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,10 +116,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         setUpMaps()
     }
 
-    private fun setUpPermissions() {
+    /*private fun setUpPermissions() {
         val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+        val locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
+            makeRequest()
+        }
+
+        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
             makeRequest()
         }
     }
@@ -115,6 +134,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
             this,
             arrayOf(Manifest.permission.CAMERA),
             CAMERA_REQUEST_CODE
+        )
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            LOCATION_REQUEST_CODE
         )
     }
 
@@ -135,7 +160,19 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
                 }
             }
         }
-    }
+
+        when (requestCode) {
+            LOCATION_REQUEST_CODE -> {
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(
+                        this,
+                        "You need the location permission to use this app",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+    }*/
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         //add some event to the menu
@@ -185,7 +222,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
 
     private fun setUpMaps() {
         mapFragment.getMapAsync { googleMap ->
-            if (ActivityCompat.checkSelfPermission(
+            /*if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -196,9 +233,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    101
+                    LOCATION_REQUEST_CODE
                 )
-            }
+            }*/
             googleMap.isMyLocationEnabled = true
 
             getCurrentLocation {
@@ -230,7 +267,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                101
+                LOCATION_REQUEST_CODE
             )
             return
         }
@@ -347,12 +384,51 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
     }
 
     override fun onMapReady(map: GoogleMap) {
-        map.addMarker(
+        // Add some markers to the map, and add a data object to each marker.
+        markerRadio = map.addMarker(
             MarkerOptions()
-                .position(LatLng(0.0, 0.0))
-                .title("Marker")
+                .position(radioFailte)
+                .title("Radio Failte")
         )
+        markerRadio.tag = 0
+        markerWall = map.addMarker(
+            MarkerOptions()
+                .position(muralWall)
+                .title("Solidarity Wall")
+        )
+        markerWall.tag = 0
+        markerSands = map.addMarker(
+            MarkerOptions()
+                .position(bSands)
+                .title("Bobby Sands Mural")
+        )
+        markerSands.tag = 0
+        markerMonastery = map.addMarker(
+            MarkerOptions()
+                .position(clonMonastery)
+                .title("Clonard Monastery")
+        )
+        markerMonastery.tag = 0
+        markerCentre = map.addMarker(
+            MarkerOptions()
+                .position(connCentre)
+                .title("Aras Ui Chongaile")
+        )
+        markerCentre.tag = 0
+        markerCemetary = map.addMarker(
+            MarkerOptions()
+                .position(millCemetary)
+                .title("Milltown Cemetery")
+        )
+        markerCemetary.tag = 0
+
+        // Set a listener for marker click.
+       // map.setOnMarkerClickListener(this)
     }
+
+    /*override fun onMarkerClick(p0: Marker): Boolean {
+        TODO("Not yet implemented")
+    }*/
 }
 
 val Location.latLng: LatLng

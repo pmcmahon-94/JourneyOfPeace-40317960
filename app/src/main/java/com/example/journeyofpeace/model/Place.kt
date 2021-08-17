@@ -43,8 +43,7 @@ data class Place(
 
 fun Place.getPositionVector(azimuth: Float, latLng: LatLng): Vector3 {
     val placeLatLng = this.geometry.location.latLng
-    // TODO compute heading
-    val heading = 0.0
+    val heading = latLng.sphericalHeading(placeLatLng)
     val r = -2f
     val x = r * sin(azimuth + heading).toFloat()
     val y = 1f
