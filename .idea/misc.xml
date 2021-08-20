@@ -3,9 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Peter McMathon/AndroidStudioProjects/JourneyOfPeace2/app/src/main/res/layout/about_us.xml" value="0.1" />
         <entry key="..\:/Users/Peter McMathon/AndroidStudioProjects/JourneyOfPeace2/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/Users/Peter McMathon/AndroidStudioProjects/JourneyOfPeace2/app/src/main/res/layout/content_main.xml" value="0.1" />
+        <entry key="..\:/Users/Peter McMathon/AndroidStudioProjects/JourneyOfPeace2/app/src/main/res/layout/menu_header.xml" value="0.1" />
         <entry key="..\:/Users/Peter McMathon/AndroidStudioProjects/JourneyOfPeace2/app/src/main/res/layout/place_view.xml" value="0.16197916666666667" />
+        <entry key="..\:/Users/Peter McMathon/AndroidStudioProjects/JourneyOfPeace2/app/src/main/res/menu/nav_menu.xml" value="0.14351851851851852" />
       </map>
     </option>
   </component>

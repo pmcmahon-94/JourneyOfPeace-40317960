@@ -1,6 +1,7 @@
 package com.example.journeyofpeace
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.getSystemService
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.journeyofpeace.api.PlacesService
 import com.example.journeyofpeace.ar.PlaceNode
 import com.example.journeyofpeace.ar.PlacesArFragment
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -31,7 +33,6 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.ar.sceneform.AnchorNode
 import com.google.codelabs.findnearbyplacesar.api.NearbyPlacesResponse
-import com.example.journeyofpeace.api.PlacesService
 import com.google.codelabs.findnearbyplacesar.model.Place
 import com.google.codelabs.findnearbyplacesar.model.getPositionVector
 import retrofit2.Call
@@ -41,6 +42,14 @@ import retrofit2.Response
 //private const val CAMERA_REQUEST_CODE = 101
 private const val LOCATION_REQUEST_CODE = 100
 
+/**
+ * The main activity for the Journey of Peace app being developed for Failte Feirste Thiar.
+ * The app is an Augmented Reality app using geo-location and is aimed at tourism and education.
+ * The class involves generating permissions for both Camera and Location in order for the app to be used,
+ * a navigation menu for easy navigation of the application, A map with markers pin pointing the locations
+ * in a tour format, geo-location for users to gain access to their location and whereabouts and an AR feature
+ * developed for each location.
+ */
 class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.OnNavigationItemSelectedListener,
     OnMapReadyCallback {
 
@@ -83,6 +92,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
     private lateinit var markerWall: Marker
     private lateinit var markerRadio: Marker
 
+    /**
+     * The onCreate method allows for the fragments to be created and by using the variables
+     * initialized above to be linked to an ID from a particular layout within the xml files.
+     * This is where the main code to run the app will be performed.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -174,6 +188,10 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         }
     }*/
 
+    /**
+     * Takes an item from the navigation menu and adds a notification to the item
+     * only when said item is equal to the ID requested.
+     */
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         //add some event to the menu
         when (item.itemId) {
@@ -182,11 +200,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
             }
             R.id.about_us -> {
                 Toast.makeText(baseContext, "about us", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, AboutUs::class.java)
+                startActivity(intent)
             }
         }
         return true
     }
 
+    /**
+     *
+     */
     override fun onResume() {
         super.onResume()
         sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)?.also {
@@ -205,11 +228,19 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         }
     }
 
+    /**
+     *
+     */
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
     }
 
+    /**
+     * Method initiates the AR Fragment within the app.
+     * It allows for an anchor to be created in order to position the fragment
+     * appropriately within the scene.
+     */
     private fun setUpAr() {
         arFragment.setOnTapArPlaneListener { hitResult, _, _ ->
             // Create anchor
@@ -220,6 +251,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         }
     }
 
+    /**
+     * setUpMaps() allows
+     */
     private fun setUpMaps() {
         mapFragment.getMapAsync { googleMap ->
             /*if (ActivityCompat.checkSelfPermission(
@@ -255,6 +289,11 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         }
     }
 
+    /**
+     * Location permissions are requested and if the permission is granted, a user
+     * will then be able to access the location of their device within the map fragment
+     * located below the AR fragment.
+     */
     private fun getCurrentLocation(onSuccess: (Location) -> Unit) {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -279,6 +318,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         }
     }
 
+    /**
+     *
+     */
     private fun addPlaces(anchorNode: AnchorNode) {
         val currentLocation = currentLocation
         if (currentLocation == null) {
@@ -314,6 +356,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         }
     }
 
+    /**
+     *
+     */
     private fun getNearbyPlaces(location: Location) {
         // TODO fill in API key
         val apiKey = this.getString(R.string.google_maps_key)
@@ -344,6 +389,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         )
     }
 
+    /**
+     *
+     */
     private fun showInfoWindow(place: Place) {
         // Show in AR
         val matchingPlaceNode = anchorNode?.children?.filterIsInstance<PlaceNode>()?.first {
@@ -360,9 +408,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         matchingMarker?.showInfoWindow()
     }
 
+    /**
+     *
+     */
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
     }
 
+    /**
+     *
+     */
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) {
             return
@@ -383,6 +437,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         SensorManager.getOrientation(rotationMatrix, orientationAngles)
     }
 
+    /**
+     * When the map is ready for use, markers will appear for each of the locations
+     * defined below. The locations are initialised using their Longitude and Latitude.
+     * Markers are then set up for each location with a title appearing when user taps
+     * on the marker within the map fragment.
+     */
     override fun onMapReady(map: GoogleMap) {
         // Add some markers to the map, and add a data object to each marker.
         markerRadio = map.addMarker(
