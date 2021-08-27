@@ -8,6 +8,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -17,9 +18,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.getSystemService
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.journeyofpeace.api.NearbyPlacesResponse
 import com.example.journeyofpeace.api.PlacesService
 import com.example.journeyofpeace.ar.PlaceNode
-import com.example.journeyofpeace.ar.PlacesArFragment
+import com.example.journeyofpeace.model.Place
+import com.example.journeyofpeace.model.getPositionVector
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -32,9 +35,11 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.ar.sceneform.AnchorNode
-import com.google.codelabs.findnearbyplacesar.api.NearbyPlacesResponse
-import com.google.codelabs.findnearbyplacesar.model.Place
-import com.google.codelabs.findnearbyplacesar.model.getPositionVector
+import com.google.ar.sceneform.math.Vector3
+import com.google.ar.sceneform.rendering.Color
+import com.google.ar.sceneform.rendering.ExternalTexture
+import com.google.ar.sceneform.rendering.ModelRenderable
+import com.google.ar.sceneform.ux.ArFragment
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,13 +60,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
 
     private val TAG = "MainActivity"
 
+    private lateinit var videoRenderable: ModelRenderable
+    private val HEIGHT: Float = 0.95f
+
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
-    private lateinit var arFragment: PlacesArFragment
+    private lateinit var arFragment: ArFragment
     private lateinit var mapFragment: SupportMapFragment
 
     private val orientationAngles = FloatArray(3)
@@ -101,7 +109,43 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        arFragment = supportFragmentManager.findFragmentById(R.id.ar_fragment) as PlacesArFragment
+        //arFragment = supportFragmentManager.findFragmentById(R.id.ar_fragment) as ArFragment
+
+        val texture = ExternalTexture()
+        val mediaPlayer: MediaPlayer = MediaPlayer.create(this, R.raw.easter_rising)
+        mediaPlayer.setSurface(texture.surface)
+        mediaPlayer.isLooping = true
+
+        ModelRenderable.builder()
+            .setSource(this, R.raw.video_screen)
+            .build()
+            .thenAccept{
+                    modelRenderable ->
+                videoRenderable = modelRenderable
+                videoRenderable.material.setFloat4("keyColor", Color(0.01843f, 1.0f, 0.0987f))
+                videoRenderable.material.setExternalTexture("videoTexture", texture)
+            }
+
+        arFragment = supportFragmentManager.findFragmentById(R.id.ar_fragment) as ArFragment
+        arFragment.setOnTapArPlaneListener { hitResult, _, _ ->
+            val anchorNode = AnchorNode(hitResult.createAnchor())
+
+            if (!mediaPlayer.isPlaying){
+                mediaPlayer.start()
+                texture.surfaceTexture.setOnFrameAvailableListener {
+                    anchorNode.renderable = videoRenderable
+                    texture.surfaceTexture.setOnFrameAvailableListener(null)
+                }
+            }else{
+                anchorNode.renderable = videoRenderable
+            }
+            val width: Float = mediaPlayer.videoWidth.toFloat()
+            val height: Float = mediaPlayer.videoHeight.toFloat()
+
+            anchorNode.localScale = Vector3(HEIGHT * (width / height), HEIGHT, 0.95f)
+            arFragment.arSceneView.scene.addChild(anchorNode)
+        }
+
         mapFragment =
             supportFragmentManager.findFragmentById(R.id.maps_fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -126,37 +170,32 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         placesService = PlacesService.create()
 
         //setUpPermissions()
-        setUpAr()
+        //setUpAr()
         setUpMaps()
     }
 
     /*private fun setUpPermissions() {
         val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
         val locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makeRequest()
         }
-
         if (locationPermission != PackageManager.PERMISSION_GRANTED) {
             makeRequest()
         }
     }
-
     private fun makeRequest() {
         ActivityCompat.requestPermissions(
             this,
             arrayOf(Manifest.permission.CAMERA),
             CAMERA_REQUEST_CODE
         )
-
         ActivityCompat.requestPermissions(
             this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
             LOCATION_REQUEST_CODE
         )
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -174,7 +213,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
                 }
             }
         }
-
         when (requestCode) {
             LOCATION_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -235,7 +273,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         super.onPause()
         sensorManager.unregisterListener(this)
     }
-
+    /*
     /**
      * Method initiates the AR Fragment within the app.
      * It allows for an anchor to be created in order to position the fragment
@@ -249,7 +287,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
             anchorNode?.setParent(arFragment.arSceneView.scene)
             addPlaces(anchorNode!!)
         }
-    }
+    }*/
 
     /**
      * setUpMaps() allows
@@ -483,7 +521,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, NavigationView.On
         markerCemetary.tag = 0
 
         // Set a listener for marker click.
-       // map.setOnMarkerClickListener(this)
+        // map.setOnMarkerClickListener(this)
     }
 
     /*override fun onMarkerClick(p0: Marker): Boolean {

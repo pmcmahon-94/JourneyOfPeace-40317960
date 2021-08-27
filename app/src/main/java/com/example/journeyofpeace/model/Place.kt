@@ -1,5 +1,5 @@
 
-package com.google.codelabs.findnearbyplacesar.model
+package com.example.journeyofpeace.model
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.ar.sceneform.math.Vector3

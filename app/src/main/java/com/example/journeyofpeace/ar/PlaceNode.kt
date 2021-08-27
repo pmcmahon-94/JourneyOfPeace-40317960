@@ -6,7 +6,7 @@ import android.widget.TextView
 import com.example.journeyofpeace.R
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.rendering.ViewRenderable
-import com.google.codelabs.findnearbyplacesar.model.Place
+import com.example.journeyofpeace.model.Place
 
 class PlaceNode(
     private val context: Context,

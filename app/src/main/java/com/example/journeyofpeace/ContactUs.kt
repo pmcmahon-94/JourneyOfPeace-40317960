@@ -9,7 +9,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 
-class AboutUs : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class ContactUs : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var drawerLayout: DrawerLayout
@@ -17,8 +17,7 @@ class AboutUs : AppCompatActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.about_us)
-
+        setContentView(R.layout.activity_contact_us)
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 

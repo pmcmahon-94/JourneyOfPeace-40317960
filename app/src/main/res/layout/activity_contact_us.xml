@@ -3,23 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ContactUs">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="70dp"
-        android:paddingBottom="70dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:text="@string/failteInfo"
-        />
+        android:text="Get In Touch"
+        android:textSize="20sp"
+        android:layout_marginTop="70dp"
+        android:paddingLeft="140dp" />
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/about_us_image" />
+    
+
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -41,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/nav_header"
+                    android:text="Journey Of Peace"
                     style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                     android:textColor="@color/white"
                     />
